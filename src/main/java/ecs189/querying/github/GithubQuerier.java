@@ -28,6 +28,11 @@ public class GithubQuerier {
             JSONObject event = response.get(i);
             // Get event type
             String type = event.getString("type");
+            // Head Sha
+            JSONObject payLoad = event.getJSONObject("payload");
+            // Get the commit
+            JSONArray commit = payLoad.getJSONArray("commits");
+
             // Get created_at date, and format it in a more pleasant style
             String creationDate = event.getString("created_at");
             SimpleDateFormat inFormat = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss'Z'");
@@ -48,6 +53,46 @@ public class GithubQuerier {
             sb.append("<div id=event-" + i + " class=\"collapse\" style=\"height: auto;\"> <pre>");
             sb.append(event.toString());
             sb.append("</pre> </div>");
+
+            // Vertical list addition for adding name/email/sha/commit message
+            for (int j=0; j<commit.length(); j++) {
+                JSONObject tempRoot = commit.getJSONObject(j);
+                String sha = tempRoot.getString("sha");
+                JSONObject author = tempRoot.getJSONObject("author");
+                String name = author.getString("name");
+                String email = author.getString("email");
+                String message = tempRoot.getString("message");
+
+                if (j == 0) {//display name and email once
+                    sb.append("<p>");
+                    sb.append("name: ");
+                    sb.append(name);
+                    sb.append("</p>");
+
+                    sb.append("<p>");
+                    sb.append("email: ");
+                    sb.append(email);
+                    sb.append("</p>");
+
+                    sb.append("Date: ");
+                    sb.append(formatted);
+                    sb.append("<br />");
+                }
+                sb.append("<p>");
+                sb.append("<u8>");
+                sb.append("<li>");
+                sb.append("sha: ");
+                sb.append(sha);
+                sb.append("</li>");
+
+                sb.append("<li>");
+                sb.append("commit message: ");
+                sb.append(message);
+                sb.append("</li>");
+                sb.append("</u8>");
+                sb.append("</p>");
+
+            }
         }
         sb.append("</div>");
         return sb.toString();
